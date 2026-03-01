@@ -1,27 +1,26 @@
+version: '3.8'
+
 services:
   verifier:
-    image: ghcr.io/eu-digital-identity-wallet/eudi-srv-verifier-endpoint:latest
+    image: ghcr.io/eu-digital-identity-wallet/eudi-srv-verifier-endpoint:0.8.0
     container_name: verifier-backend
-    ports:
-      - "8080:8080"
+    restart: unless-stopped
     environment:
-      VERIFIER_PUBLICURL: "https://srv132427807.host"
+      VERIFIER_PUBLICURL: "https://srv132427807.host/api"
       VERIFIER_RESPONSE_MODE: "DirectPost"
+    networks:
+      - eudi-net
 
   verifier-ui:
     image: ghcr.io/eu-digital-identity-wallet/eudi-web-verifier:latest
     container_name: verifier-ui
-    ports:
-      - "4300:4300"
+    restart: unless-stopped
     environment:
       - DOMAIN_NAME=""
-      - HOST_API="http://84.200.193.10:8080"
+      - HOST_API="https://srv132427807.host/api"
+    networks:
+      - eudi-net
 
-  haproxy:
-    image: haproxy:2.7.2
-    container_name: haproxy
-    ports:
-      - "443:443"
-    volumes:
-      - ./haproxy.conf:/usr/local/etc/haproxy/haproxy.cfg
-      - ./haproxy.pem:/etc/ssl/certs/mysite.pem
+networks:
+  eudi-net:
+    driver: bridge
